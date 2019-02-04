@@ -1,4 +1,4 @@
-const shouldBlock = true;
+const shouldBlock = false;
 
 const responseOnBlock = `(window.webpackJsonp=window.webpackJsonp||[]).push([[2],{22:function(n,u,o){"use strict";o.r(u);o(0);u.default=function(){return null}}}]);
 //# sourceMappingURL=ultra-top-secret.js.map`;

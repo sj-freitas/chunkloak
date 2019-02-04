@@ -9,12 +9,20 @@ class B extends Component {
     };
   }
 
+  async getComponent() {
+    try {
+      const Component = await import('./ultra-top-secret/UltraTopSecret'  /* webpackChunkName: "ultra-top-secret" */);
+
+      return Component.default;
+    } catch (e) {
+      return null;
+    }
+  }
+
   async componentDidMount() {
-    const loadedModule = await import('./ultra-top-secret/UltraTopSecret'  /* webpackChunkName: "ultra-top-secret" */);
-    
-    this.setState({
-      Component: loadedModule.default,
-    });
+    const Component = await this.getComponent();
+
+    this.setState({ Component });
   }
 
   render() {

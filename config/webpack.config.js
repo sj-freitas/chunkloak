@@ -23,6 +23,7 @@ const getClientEnvironment = require('./env');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin-alt');
 const typescriptFormatter = require('react-dev-utils/typescriptFormatter');
+const ReplaceInFileWebpackPlugin = require('replace-in-file-webpack-plugin');
 
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
@@ -273,7 +274,7 @@ module.exports = function(webpackEnv) {
         // To fix this, we prevent you from importing files out of src/ -- if you'd like to,
         // please link the files into your node_modules/ and let module-resolution kick in.
         // Make sure your source files are compiled, as they will not be processed in any way.
-        new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
+        new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson])
       ],
     },
     resolveLoader: {
@@ -285,27 +286,18 @@ module.exports = function(webpackEnv) {
     },
     module: {
       strictExportPresence: true,
-      rules: [
-        // Disable require.ensure as it's not a standard language feature.
-        { parser: { requireEnsure: false } },
-
-        // First, run the linter.
-        // It's important to do this before Babel processes the JS.
-        {
-          test: /\.(js|mjs|jsx)$/,
-          enforce: 'pre',
-          use: [
-            {
-              options: {
-                formatter: require.resolve('react-dev-utils/eslintFormatter'),
-                eslintPath: require.resolve('eslint'),
-                
-              },
-              loader: require.resolve('eslint-loader'),
-            },
-          ],
-          include: paths.appSrc,
+      rules: [{
+        test: /\.(js|mjs|jsx)$/,
+        use: {
+          loader: 'regex-replace-loader',
+          options: {
+            regex: '@__chunkloak__\(([^\)]+)\)',
+            value: ([full]) => `console.log("és bue ${full}")`,
+          }
         },
+      },
+      // Disable require.ensure as it's not a standard language feature.
+      { parser: { requireEnsure: false } },
         {
           // "oneOf" will traverse all following loaders until one will
           // match the requirements. When no loader matches it will fall
@@ -443,6 +435,24 @@ module.exports = function(webpackEnv) {
                 },
                 'sass-loader'
               ),
+            },
+            
+            // First, run the linter.
+            // It's important to do this before Babel processes the JS.
+            {
+              test: /\.(js|mjs|jsx)$/,
+              enforce: 'pre',
+              use: [
+                {
+                  options: {
+                    formatter: require.resolve('react-dev-utils/eslintFormatter'),
+                    eslintPath: require.resolve('eslint'),
+                    
+                  },
+                  loader: require.resolve('eslint-loader'),
+                },
+              ],
+              include: paths.appSrc,
             },
             // "file" loader makes sure those assets get served by WebpackDevServer.
             // When you `import` an asset, you get its (virtual) filename.

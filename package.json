@@ -44,6 +44,7 @@
     "react-app-polyfill": "^0.2.0",
     "react-dev-utils": "^7.0.1",
     "react-dom": "^16.7.0",
+    "regex-replace-loader": "^1.0.1",
     "resolve": "1.8.1",
     "sass-loader": "7.1.0",
     "style-loader": "0.23.0",
@@ -53,7 +54,8 @@
     "webpack-content-chunks": "^0.1.6",
     "webpack-dev-server": "3.1.14",
     "webpack-manifest-plugin": "2.0.4",
-    "workbox-webpack-plugin": "3.6.3"
+    "workbox-webpack-plugin": "3.6.3",
+    "yarn": "^1.13.0"
   },
   "scripts": {
     "start": "node server/main.js",
@@ -114,5 +116,8 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "replace-in-file-webpack-plugin": "^1.0.6"
   }
 }

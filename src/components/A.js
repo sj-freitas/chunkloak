@@ -9,23 +9,31 @@ class A extends Component {
     };
   }
 
+  async getComponent() {
+    try {
+      const Component = await import('./ultra-top-secret/UltraTopSecret'  /* webpackChunkName: "ultra-top-secret" */);
+
+      __chunkloak__('./ultra-top-secret/UltraTopSecret', 'ultra-top-secret');
+
+      return Component.default;
+    } catch (e) {
+      return () => null;
+    }
+  }
+
   async componentDidMount() {
-    const loadedModule = await import('./ultra-top-secret/UltraTopSecret'  /* webpackChunkName: "ultra-top-secret" */);
-    const decoy = await import('./Decoy' /* webpackChunkName: "decoy" */);
-    
-    this.setState({
-      Component: loadedModule.default,
-      Decoy: decoy.default,
-    });
+    const Component = await this.getComponent();
+
+    this.setState({ Component });
   }
 
   render() {
-    const { Component, Decoy } = this.state;
+    const { Component } = this.state;
 
     return (
       <div>
           { Component && <Component text="BANANA" /> }
-          { Decoy && <Decoy /> }
+          ALWAYS RENDERED
       </div>
     );
   }
