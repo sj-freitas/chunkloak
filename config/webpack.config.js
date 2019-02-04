@@ -23,7 +23,6 @@ const getClientEnvironment = require('./env');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin-alt');
 const typescriptFormatter = require('react-dev-utils/typescriptFormatter');
-const ReplaceInFileWebpackPlugin = require('replace-in-file-webpack-plugin');
 
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
@@ -286,18 +285,47 @@ module.exports = function(webpackEnv) {
     },
     module: {
       strictExportPresence: true,
-      rules: [{
-        test: /\.(js|mjs|jsx)$/,
-        use: {
-          loader: 'regex-replace-loader',
+      rules: [
+        // {
+        //   test: /\.(js|mjs|jsx)$/g,
+        //   use: {
+        //     loader: 'regex-replace-loader',
+        //     options: {
+        //       // regex: /@__chunkloak__\(([^)]+)\)/,
+        //       // value: ([full]) => `console.log("és bue ${full}")`,
+        //       regex: 'BANANA',
+        //       flags: 'g',
+        //       value: 'BANANA',
+        //     }
+        //   }
+        // },
+        {
+          test: /\.js$/,
+          loader: 'dynamic-regex-replace-loader',
           options: {
-            regex: '@__chunkloak__\(([^\)]+)\)',
-            value: ([full]) => `console.log("és bue ${full}")`,
+            match: {
+              pattern: /__chunkloak__\(([^)]+)\)/,
+              flags: 'g'
+            },
+            replaceWith: (res) => {
+              const findTicks = new RegExp(/'/, 'g');
+              const regex = new RegExp(/'(.*?)'/, 'g');
+              const matches = res.match(regex).map(t => t.replace(findTicks, ''));
+
+              return `(async () => {
+                try {
+                  const Module = await import('${matches[0]}' /* webpackChunkName: "${matches[1]}" */);
+
+                  return Module.default;
+                } catch (e) {
+                  return null;
+                }
+              })()`;
+            },
           }
         },
-      },
-      // Disable require.ensure as it's not a standard language feature.
-      { parser: { requireEnsure: false } },
+        // Disable require.ensure as it's not a standard language feature.
+        { parser: { requireEnsure: false } },
         {
           // "oneOf" will traverse all following loaders until one will
           // match the requirements. When no loader matches it will fall
@@ -324,7 +352,7 @@ module.exports = function(webpackEnv) {
                 customize: require.resolve(
                   'babel-preset-react-app/webpack-overrides'
                 ),
-                
+
                 plugins: [
                   [
                     require.resolve('babel-plugin-named-asset-import'),
@@ -364,7 +392,7 @@ module.exports = function(webpackEnv) {
                 ],
                 cacheDirectory: true,
                 cacheCompression: isEnvProduction,
-                
+
                 // If an error happens in a package, it's possible to be
                 // because it was compiled. Thus, we don't want the browser
                 // debugger to show the original code. Instead, the code
@@ -436,7 +464,7 @@ module.exports = function(webpackEnv) {
                 'sass-loader'
               ),
             },
-            
+
             // First, run the linter.
             // It's important to do this before Babel processes the JS.
             {
@@ -447,7 +475,7 @@ module.exports = function(webpackEnv) {
                   options: {
                     formatter: require.resolve('react-dev-utils/eslintFormatter'),
                     eslintPath: require.resolve('eslint'),
-                    
+
                   },
                   loader: require.resolve('eslint-loader'),
                 },

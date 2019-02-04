@@ -9,20 +9,8 @@ class A extends Component {
     };
   }
 
-  async getComponent() {
-    try {
-      const Component = await import('./ultra-top-secret/UltraTopSecret'  /* webpackChunkName: "ultra-top-secret" */);
-
-      __chunkloak__('./ultra-top-secret/UltraTopSecret', 'ultra-top-secret');
-
-      return Component.default;
-    } catch (e) {
-      return () => null;
-    }
-  }
-
-  async componentDidMount() {
-    const Component = await this.getComponent();
+  loadComponent = async () => {
+    const Component = await __chunkloak__('./ultra-top-secret/UltraTopSecret', 'ultra-top-secret');
 
     this.setState({ Component });
   }
@@ -32,6 +20,7 @@ class A extends Component {
 
     return (
       <div>
+          <button onClick={ this.loadComponent }>Do login</button>
           { Component && <Component text="BANANA" /> }
           ALWAYS RENDERED
       </div>
